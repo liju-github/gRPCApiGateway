@@ -7,7 +7,12 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-var jwtSecretKey = []byte("your-secret-key") // You should store this securely, not hardcode
+var jwtSecretKey []byte
+
+// SetJWTSecretKey initializes the JWT secret key from an external source, such as environment variables.
+func SetJWTSecretKey(secret string) {
+	jwtSecretKey = []byte(secret)
+}
 
 // GenerateJWT generates a JWT token for the given user ID.
 func GenerateJWT(userID string) (string, error) {
@@ -21,7 +26,7 @@ func GenerateJWT(userID string) (string, error) {
 	return token.SignedString(jwtSecretKey)
 }
 
-// utils/jwt.go
+// ParseJWT validates a JWT token and retrieves the user ID.
 func ParseJWT(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return jwtSecretKey, nil
@@ -36,10 +41,10 @@ func ParseJWT(tokenString string) (string, error) {
 		return "", errors.New("invalid token claims")
 	}
 
-	userId, ok := claims["userId"].(string)
+	userID, ok := claims["sub"].(string)
 	if !ok {
 		return "", errors.New("userId not found in token")
 	}
 
-	return userId, nil
+	return userID, nil
 }

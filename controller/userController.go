@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -74,6 +75,7 @@ func (uc *UserController) GetProfileHandler(c *gin.Context) {
 	userId := c.GetString("userId")
 	req.UserId = userId
 
+	log.Println("request from ",userId)
 	res, err := uc.client.GetProfile(context.Background(), &req)
 	if err != nil {
 		st, _ := status.FromError(err)

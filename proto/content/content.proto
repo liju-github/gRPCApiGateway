@@ -1,0 +1,191 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "proto/content";
+
+service ContentService {
+    rpc PostQuestion(PostQuestionRequest) returns (PostQuestionResponse);
+    rpc GetQuestionsByUserID(GetQuestionsByUserIDRequest) returns (GetQuestionsByUserIDResponse);
+    rpc GetQuestionsByTags(GetQuestionsByTagsRequest) returns (GetQuestionsByTagsResponse);
+    rpc GetQuestionsByWord(GetQuestionsByWordRequest) returns (GetQuestionsByWordResponse);
+    rpc DeleteQuestion(DeleteQuestionRequest) returns (DeleteQuestionResponse);
+    rpc GetQuestionByID(GetQuestionByIDRequest) returns (GetQuestionByIDResponse);
+    rpc PostAnswerByQuestionID(PostAnswerByQuestionIDRequest) returns (PostAnswerByQuestionIDResponse);
+    rpc DeleteAnswerByAnswerID(DeleteAnswerByAnswerIDRequest) returns (DeleteAnswerByAnswerIDResponse);
+    rpc UpvoteAnswerByAnswerID(UpvoteAnswerByAnswerIDRequest) returns (UpvoteAnswerByAnswerIDResponse);
+    rpc DownvoteAnswerByAnswerID(DownvoteAnswerByAnswerIDRequest) returns (DownvoteAnswerByAnswerIDResponse);
+    rpc FlagQuestion(FlagQuestionRequest) returns (FlagQuestionResponse);
+    rpc FlagAnswer(FlagAnswerRequest) returns (FlagAnswerResponse);
+    rpc MarkQuestionAsAnswered(MarkQuestionAsAnsweredRequest) returns (MarkQuestionAsAnsweredResponse);
+    rpc GetUserFeed(GetUserFeedRequest) returns (GetUserFeedResponse); // New RPC to get user feed
+    rpc AddTag(AddTagRequest) returns (AddTagResponse); // New RPC to add a tag
+    rpc RemoveTag(RemoveTagRequest) returns (RemoveTagResponse); // New RPC to remove a tag
+    rpc SearchQuestionsAnswersUsers(SearchRequest) returns (SearchResponse); // New RPC to search
+}
+
+message PostQuestionRequest {
+    string question = 1;
+    string userID = 2; // ID of the user posting the question
+    int64 createdAt = 3; // Timestamp of when the question was created
+    repeated string tags = 4; // List of tags associated with the question
+}
+
+message PostQuestionResponse {
+    bool success = 1; // Whether the post was successful
+    string message = 2; // Message indicating success or failure
+}
+
+message GetQuestionsByUserIDRequest {
+    string userID = 1; // ID of the user whose questions are to be fetched
+}
+
+message GetQuestionsByUserIDResponse {
+    repeated Question questions = 1; // List of questions posted by the user
+}
+
+message GetQuestionsByTagsRequest {
+    repeated string tags = 1; // List of tags to search for
+}
+
+message GetQuestionsByTagsResponse {
+    repeated Question questions = 1; // List of questions that match the tags
+}
+
+message GetQuestionsByWordRequest {
+    string searchWord = 1; // Word to search in questions
+}
+
+message GetQuestionsByWordResponse {
+    repeated Question questions = 1; // List of questions that match the search word
+}
+
+message DeleteQuestionRequest {
+    string questionID = 1; // ID of the question to be deleted
+}
+
+message DeleteQuestionResponse {
+    bool success = 1; // Whether the delete was successful
+    string message = 2; // Message indicating success or failure
+}
+
+message GetQuestionByIDRequest {
+    string questionID = 1; // ID of the question to fetch
+}
+
+message GetQuestionByIDResponse {
+    Question question = 1; // The question retrieved by its ID
+}
+
+message PostAnswerByQuestionIDRequest {
+    string questionID = 1; // The question ID to which the answer belongs
+    string answer = 2; // The answer text
+    string userID = 3; // ID of the user posting the answer
+}
+
+message PostAnswerByQuestionIDResponse {
+    bool success = 1; // Whether the post was successful
+    string message = 2; // Message indicating success or failure
+}
+
+message DeleteAnswerByAnswerIDRequest {
+    string answerID = 1; // ID of the answer to be deleted
+}
+
+message DeleteAnswerByAnswerIDResponse {
+    bool success = 1; // Whether the delete was successful
+    string message = 2; // Message indicating success or failure
+}
+
+message UpvoteAnswerByAnswerIDRequest {
+    string answerID = 1; // ID of the answer to be upvoted
+}
+
+message UpvoteAnswerByAnswerIDResponse {
+    bool success = 1; // Whether the upvote was successful
+    string message = 2; // Message indicating success or failure
+}
+
+message DownvoteAnswerByAnswerIDRequest {
+    string answerID = 1; // ID of the answer to be downvoted
+}
+
+message DownvoteAnswerByAnswerIDResponse {
+    bool success = 1; // Whether the downvote was successful
+    string message = 2; // Message in dicating success or failure
+}
+
+message FlagQuestionRequest {
+    string questionID = 1; // ID of the question to be flagged
+    string userID = 2; // ID of the user flagging the question
+    string reason = 3; // Reason for flagging the question
+}
+
+message FlagQuestionResponse {
+    bool success = 1; // Whether the flag action was successful
+    string message = 2; // Message indicating success or failure
+}
+
+message FlagAnswerRequest {
+    string answerID = 1; // ID of the answer to be flagged
+    string userID = 2; // ID of the user flagging the answer
+    string reason = 3; // Reason for flagging the answer
+}
+
+message FlagAnswerResponse {
+    bool success = 1; // Whether the flag action was successful
+    string message = 2; // Message indicating success or failure
+}
+
+message MarkQuestionAsAnsweredRequest {
+    string questionID = 1; // ID of the question being marked as answered
+}
+
+message MarkQuestionAsAnsweredResponse {
+    bool success = 1; // Whether the action was successful
+    string message = 2; // Message indicating success or failure
+}
+
+message Question {
+    string questionID = 1; // ID of the question
+    string question = 2; // The question text
+    string userID = 3; // ID of the user who posted the question
+    int64 createdAt = 4; // Timestamp when the question was created
+    repeated string tags = 5; // Tags associated with the question
+    bool isAnswered = 6; // Whether the question is marked as answered
+}
+
+message GetUserFeedRequest {
+    string userID = 1; // ID of the user whose feed is being requested
+}
+
+message GetUserFeedResponse {
+    repeated Question questions = 1; // List of questions in the user's feed
+}
+
+message AddTagRequest {
+    string tagName = 1; // The name of the tag to add
+}
+
+message AddTagResponse {
+    bool success = 1; // Whether the tag was added successfully
+    string message = 2; // Message indicating success or failure
+}
+
+message RemoveTagRequest {
+    string tagName = 1; // The name of the tag to remove
+}
+
+message RemoveTagResponse {
+    bool success = 1; // Whether the tag was removed successfully
+    string message = 2; // Message indicating success or failure
+}
+
+message SearchRequest {
+    string keyword = 1; // Keyword to search for questions, answers, or users
+}
+
+message SearchResponse {
+    repeated Question questions = 1; // List of questions matching the keyword
+    // Optionally, you could add answers and users as well in the response
+}

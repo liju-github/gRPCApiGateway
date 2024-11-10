@@ -16,9 +16,12 @@ generate-proto:
 		--go-grpc_out=. \
 		$(PROTO_DIR)/**/*.proto
 
-download-dependencies:
+tidy:
 	@echo "Downloading dependencies..."
 	go mod tidy
 
+run-app:
+	go run ./cmd
+
 # Run the entire pipeline
-all: install-tools generate-proto download-dependencies
+all: install-tools generate-proto tidy run-app

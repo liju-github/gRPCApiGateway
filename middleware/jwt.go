@@ -26,7 +26,6 @@ func JWTAuthMiddleware(c *gin.Context) {
 		return
 	}
 
-	// Store userId in context
 	c.Set("userId", userId)
 	fmt.Println("the jwt string is",c.GetString("userId"))
 	c.Next()
