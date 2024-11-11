@@ -1,4 +1,3 @@
-// middleware/jwt.go
 package middleware
 
 import (
@@ -10,6 +9,7 @@ import (
 	"github.com/liju-github/EcommerceApiGatewayService/utils"
 )
 
+// JWTAuthMiddleware is a middleware to check and authorize JWT tokens.
 func JWTAuthMiddleware(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
@@ -19,14 +19,27 @@ func JWTAuthMiddleware(c *gin.Context) {
 	}
 
 	token := strings.TrimPrefix(authHeader, "Bearer ")
-	userId, err := utils.ParseJWT(token)
+	userID, role, err := utils.ParseJWT(token)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"+err.Error()})
 		c.Abort()
 		return
 	}
 
-	c.Set("userId", userId)
-	fmt.Println("the jwt string is",c.GetString("userId"))
+	// Set userID and role in the context
+	c.Set("USERID", userID)
+	c.Set("ROLE", role)
+
+	fmt.Println("JWT userid:", c.GetString("USERID"), "role:", c.GetString("ROLE"));
+	c.Next()
+}
+
+
+func AdminAccess(c *gin.Context)  {
+	role := c.GetString("ROLE")
+	if role != "ADMIN"{
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.Abort()
+	}
 	c.Next()
 }

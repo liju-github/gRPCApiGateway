@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/liju-github/EcommerceApiGatewayService/model"
 	"github.com/liju-github/EcommerceApiGatewayService/proto/user"
+	"github.com/liju-github/EcommerceApiGatewayService/utils"
 	"google.golang.org/grpc/status"
 )
 
@@ -49,6 +50,8 @@ func (uc *UserController) LoginHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse(st.Message()))
 		return
 	}
+	
+	res.Token,_ = utils.GenerateJWT(res.UserId,"user")
 
 	c.JSON(http.StatusOK, gin.H{"token": res.Token, "message": model.LoginSuccessful})
 }
@@ -72,7 +75,7 @@ func (uc *UserController) VerifyEmailHandler(c *gin.Context) {
 
 func (uc *UserController) GetProfileHandler(c *gin.Context) {
 	var req user.ProfileRequest
-	userId := c.GetString("userId")
+	userId := c.GetString("USERID")
 	req.UserId = userId
 
 	log.Println("request from ",userId)
@@ -94,7 +97,7 @@ func (uc *UserController) UpdateProfileHandler(c *gin.Context) {
 	}
 
 	// Retrieve user ID from the JWT context
-	req.UserId = c.GetString("userId")
+	req.UserId = c.GetString("USERID")
 
 	res, err := uc.client.UpdateProfile(context.Background(), &req)
 	if err != nil {
@@ -103,5 +106,9 @@ func (uc *UserController) UpdateProfileHandler(c *gin.Context) {
 		return
 	}
 
+	log.Println("response from update profile: \n",res)
+
 	c.JSON(http.StatusOK, gin.H{"profile": res.Profile, "message": res.Message})
 }
+
+

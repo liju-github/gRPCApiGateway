@@ -14,10 +14,11 @@ func SetJWTSecretKey(secret string) {
 	jwtSecretKey = []byte(secret)
 }
 
-// GenerateJWT generates a JWT token for the given user ID.
-func GenerateJWT(userID string) (string, error) {
+// GenerateJWT generates a JWT token for the given user ID and role.
+func GenerateJWT(userID, role string) (string, error) {
 	claims := jwt.MapClaims{
-		"sub":    userID,
+		"userid": userID,
+		"role":   role,
 		"exp":    time.Now().Add(time.Hour * 24).Unix(), // Token expires in 24 hours
 		"issued": time.Now().Unix(),
 	}
@@ -26,25 +27,30 @@ func GenerateJWT(userID string) (string, error) {
 	return token.SignedString(jwtSecretKey)
 }
 
-// ParseJWT validates a JWT token and retrieves the user ID.
-func ParseJWT(tokenString string) (string, error) {
+// ParseJWT validates a JWT token and retrieves the user ID and role.
+func ParseJWT(tokenString string) (string, string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return jwtSecretKey, nil
 	})
 
 	if err != nil || !token.Valid {
-		return "", errors.New("invalid token")
+		return "", "", errors.New("invalid token")
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		return "", errors.New("invalid token claims")
+		return "", "", errors.New("invalid token claims")
 	}
 
-	userID, ok := claims["sub"].(string)
+	userID, ok := claims["userid"].(string)
 	if !ok {
-		return "", errors.New("userId not found in token")
+		return "", "", errors.New("userid not found in token")
 	}
 
-	return userID, nil
+	role, ok := claims["role"].(string)
+	if !ok {
+		return "", "", errors.New("role not found in token")
+	}
+
+	return userID, role, nil
 }

@@ -1,27 +1,32 @@
+# Set the directory for your Proto files
 PROTO_DIR := proto
 
 # Install necessary tools for protobuf compilation
 install-tools:
 	@echo "Installing necessary tools..."
-	# Install protoc-gen-go and protoc-gen-go-grpc
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	@echo "Tools installed successfully."
 
 # Compile proto files
 generate-proto:
-	@echo "Generating gRPC code for ApiGateway..."
-	PATH=$(HOME)/go/bin:$(PATH) protoc -I=$(PROTO_DIR) \
+	@echo "Generating gRPC code..."
+	protoc -I=$(PROTO_DIR) \
 		--go_out=. \
 		--go-grpc_out=. \
 		$(PROTO_DIR)/**/*.proto
 
+# Download and tidy dependencies
 tidy:
-	@echo "Downloading dependencies..."
+	@echo "Tidying dependencies..."
 	go mod tidy
 
-run-app:
-	go run ./cmd
+# Build the application
+build:
+	go build -o main ./cmd/main.go
 
-# Run the entire pipeline
+run-app:
+	go run ./cmd/
+
+# Run the entire pipeline: install tools, generate protobuf, tidy, and build
 all: install-tools generate-proto tidy run-app
